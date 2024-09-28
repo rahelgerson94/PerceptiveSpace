@@ -12,6 +12,7 @@ from numpy import array, cos, sin, tan
 from numpy import identity, zeros, ones, matmul, eye
 import matplotlib.pyplot as plt
 import re as re
+from Signals import triangle_wave, sawtooth_wave 
 MIN2SEC = 60
 w_en = 7.2921159 *10**-5 #rad/sec, earths velocity about the z axis
 def padZero(input_):
@@ -378,7 +379,16 @@ if __name__ == '__main__':
     interactive = True
     # if interactive == True:
     #     import mplcursors
-
+    A = 6000
+    fx = lambda k: A*np.sin(np.deg2rad(k*240.5))*np.sin( np.deg2rad(k*16))
+    
+    fx_dot = lambda k: -A*np.sin(np.deg2rad(k*240.5))*np.sin( np.deg2rad(k *16))
+   
+    fy = lambda k: A*np.cos(np.deg2rad(k *240.5)) *np.cos( np.deg2rad(k*16))
+    fy_dot = lambda k: -A*np.cos(np.deg2rad(k *240.5)) *cos( np.deg2rad(k *16))
+    fz = lambda k: A*np.sin(np.deg2rad(16*k)*triangle_wave(k, (1/240.5) ))
+    fz_dot = lambda k: -A*np.sin(np.deg2rad(16*k)*triangle_wave(k, (1/240.5) ))
+    f_m = array([fx, fx_dot, fy, fy_dot, fz, fz_dot])
     if pltEcef:
         N = 200
         plt.close()
@@ -387,6 +397,8 @@ if __name__ == '__main__':
         
         for i,ax in enumerate(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']):
             axs[i].plot(t, data[ax][:N], linewidth = 0.5, label=f'({ax})')
+            f = [f_m[i](t_i) for t_i in t]
+            axs[i].plot(t, f, linewidth = 0.5, label=f'({ax})')
             axs[i].grid(True, which='both')  
             #mplcursors.cursor(axs[i], hover=True)
             axs[i].legend()

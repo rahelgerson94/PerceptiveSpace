@@ -65,7 +65,7 @@ if __name__ == '__main__':
     T = 42300
     tri = [triangle_wave(t, 1, (1/T) ) for t  in ts ]
     sawtooth = [sawtooth_wave(t, 1, 1/T, 0, 1) for t in ts]
-    sin = [A*np.sin(np.deg2rad(t)/16))  for t in ts]
+    sin = [A*np.sin(np.deg2rad(t)/16)  for t in ts]
     conv = np.convolve(tri, sin, mode='same')
     mult = [sin[t] * tri[t] for t in ts]
     
