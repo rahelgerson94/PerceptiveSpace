@@ -67,6 +67,10 @@ def sine_wave(x, A, B, C):
 
 
 if __name__ == "__main__":
+    import pandas as pd
+    x = pd.Series([1,2,3,4,5])
+
+
     n1 = 0
     n2 = 50
     data = get_data("GpsDataFilt.csv")
@@ -100,11 +104,11 @@ if __name__ == "__main__":
     sin1 = lambda k: A* np.cos(2*np.pi*f*k)
     N = int(len(data['z'])/5)
     plt.close()
-    plt.plot(data['z'][0:N])
-    plt.plot([sin1(k) for k in range(N)])
+    # plt.plot(data['z'][0:N])
+    # plt.plot([sin1(k) for k in range(N)])
 
-    # plt.plot(new_data, "r")
-    # plt.plot(fitted,"g-")
+    plt.plot(new_data, "r")
+    plt.plot(fitted,"g-")
     # plt.plot(y_fit)
     plt.legend()
     plt.show()
