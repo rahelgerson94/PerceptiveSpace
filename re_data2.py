@@ -37,7 +37,7 @@ def moving_max(window, data):
     new_data = [item - m for item in new_data]
     return new_data
 
-def get_maxes(window, data, poly_window = 50):
+def get_maxes(window, data, poly_window = 50, prop_forward:int = 0):
     maxes =  moving_max(window, data)
     pw_end = poly_window
     pw_start = 0
@@ -46,9 +46,13 @@ def get_maxes(window, data, poly_window = 50):
         poly_coeffs = np.polyfit(range(pw_start,pw_end), maxes[pw_start:pw_end], 10)
         poly_fit = np.poly1d(poly_coeffs)
         new_data.extend(poly_fit(range(pw_start,pw_end)))
-
         pw_start = pw_end
         pw_end += min(poly_window, len(data) - pw_end - 5)
+    
+    if prop_forward:
+        for num in range(prop_forward // poly_window):
+            new_data.extend(new_data[-poly_window:])
+
     return new_data
 
 
@@ -76,7 +80,7 @@ if __name__ == "__main__":
     x_data = range(n1,n2)
     y_data = data["z"][n1:n2]
 
-    fitted_data = get_maxes(5, y_data, 50)
+    #fitted_data = get_maxes(5, y_data, 50)
 
 
     # new_data = moving_max(5,y_data) #ema(.0005,data["z"])
@@ -118,10 +122,9 @@ if __name__ == "__main__":
     
     for i,ax in enumerate(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']):
         axs[i].plot(data[ax][:N], linewidth = 0.5, label=f'({ax})')
-        axs[i].plot([0]*window + get_maxes(window, data[ax][:N], 50)) # zero padding at window size
+        axs[i].plot([0]*window + get_maxes(window, data[ax][:N], 50),label=f'({ax}_Filtered)') # zero padding at window size
         axs[i].grid(True, which='both')  
-        #mplcursors.cursor(axs[i], hover=True)
-        axs[i].legend()
+        axs[i].legend(loc='upper right')
     plt.tight_layout()
     
     plt.show()
