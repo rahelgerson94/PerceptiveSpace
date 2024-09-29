@@ -6,6 +6,7 @@ import numpy as np
 from  datetime import datetime as dt
 from Signals import triangle_wave, sawtooth_wave
 from scipy.optimize import curve_fit
+TWO_WEEKS = 672 # 30 min increments
 
 
 def get_data(file):
@@ -116,6 +117,7 @@ if __name__ == "__main__":
 
     N = 200
     plt.close()
+    
     fig, axs = plt.subplots(len(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']), 1, figsize=(8, 12))
     t = list(range(0, N))
     window = 5
@@ -126,6 +128,25 @@ if __name__ == "__main__":
         axs[i].grid(True, which='both')  
         axs[i].legend(loc='upper right')
     plt.tight_layout()
+    plt.show(block=False)
+
+    N1 = 0
+    NN1 = 200
+    N2 = NN1 + TWO_WEEKS
     
+    fig2, axs2 = plt.subplots(len(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']), 1, figsize=(8, 12))
+    t = list(range(N1, N2))
+    window = 5
+    
+    for i,ax in enumerate(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']):
+        axs2[i].plot(data[ax][N1:N2], linewidth = 0.5, label=f'({ax})')
+        axs2[i].plot([0]*window + get_maxes(window, data[ax][N1:NN1], 50,prop_forward=TWO_WEEKS),label=f'({ax}_Filtered)') # zero padding at window size
+        axs2[i].axvline(NN1, color="r", linewidth=3)
+        axs2[i].grid(True, which='both')  
+        axs2[i].legend(loc='upper right')
+    
+    plt.tight_layout()
     plt.show()
+
+
 
