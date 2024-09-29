@@ -32,30 +32,29 @@ def moving_max(window, data):
         else:
             bucket = bucket[1:]
             bucket.append(item)
-            new_data.append(max(bucket)) #max(data)
+            new_data.append(max(bucket))
+    m = np.mean(new_data)
+    new_data = [item - m for item in new_data]
     return new_data
 
-
-def ema(a,data):
-    alg = lambda a,d, l: (1-a)*l + a*d
-    last_val = 0
+def get_maxes(window, data, poly_window = 50):
+    maxes = moving_max(window, data)
+    pw_end = poly_window
+    pw_start = 0
     new_data = []
-    for item in data:
-        new_data.append(alg(a,item,last_val))
-        last_val = new_data[-1]
+    while pw_end < len(maxes):
+        poly_coeffs = np.polyfit(range(pw_start,pw_end), maxes[pw_start:pw_end], 10)
+        poly_fit = np.poly1d(poly_coeffs)
+        new_data.extend(poly_fit(range(pw_start,pw_end)))
+
+        pw_start = pw_end
+        pw_end = pw_end + poly_window
     return new_data
 
-def ma(window, data):
-    bucket = []
-    new_data = []
-    for ind, item in enumerate(data):
-        if len(bucket) < window:
-            bucket.append(item)
-        else:
-            bucket = bucket[1:]
-            bucket.append(item)
-            new_data.append(float(np.mean(bucket)))
-    return new_data
+
+
+
+
         
 def sine_wave(x, A, B, C):
     """
@@ -72,43 +71,47 @@ if __name__ == "__main__":
 
 
     n1 = 0
-    n2 = 50
+    n2 = 500
     data = get_data("GpsDataFilt.csv")
     x_data = range(n1,n2)
     y_data = data["z"][n1:n2]
-    new_data = moving_max(5,y_data) #ema(.0005,data["z"])
-    new_data_ema = ema(0.1,y_data)
+
+    fitted_data = get_maxes(5, y_data, 50)
+
+
+    # new_data = moving_max(5,y_data) #ema(.0005,data["z"])
+    # new_data_ema = ema(0.1,y_data)
    
    
     ## Fit a polynomial of degree 3 (cubic)
     #degree = 60
-    poly_coeffs = np.polyfit(range(len(new_data)), new_data, 10)
-    poly_fit = np.poly1d(poly_coeffs)
-    fitted = poly_fit(range(len(new_data)))
+    # poly_coeffs = np.polyfit(range(len(new_data)), new_data, 10)
+    # poly_fit = np.poly1d(poly_coeffs)
+    # fitted = poly_fit(range(len(new_data)))
     #print(poly_fit)
 #
     ## Initial guess for parameters [Amplitude, Frequency, Phase]
-    initial_guess = [2602/2, 1/45, 0]  # These are rough estimates
-#
-    ## Perform curve fitting
-    popt, pcov = curve_fit(sine_wave, x_data, y_data, p0=initial_guess)
-#
-    ## Extract the optimal parameters (Amplitude, Frequency, Phase)
-    amplitude, frequency, phase_shift = popt
-    print(amplitude, frequency, phase_shift)
-#
-    ## Generate the fitted sine wave using the optimized parameters
-    y_fit = sine_wave(x_data, amplitude, frequency, phase_shift)
-    A = 2602/2
-    f = 1/30
-    sin1 = lambda k: A* np.cos(2*np.pi*f*k)
-    N = int(len(data['z'])/5)
-    plt.close()
+#     initial_guess = [2602/2, 1/45, 0]  # These are rough estimates
+# #
+#     ## Perform curve fitting
+#     popt, pcov = curve_fit(sine_wave, x_data, y_data, p0=initial_guess)
+# #
+#     ## Extract the optimal parameters (Amplitude, Frequency, Phase)
+#     amplitude, frequency, phase_shift = popt
+#     print(amplitude, frequency, phase_shift)
+# #
+#     ## Generate the fitted sine wave using the optimized parameters
+#     y_fit = sine_wave(x_data, amplitude, frequency, phase_shift)
+#     A = 2602/2
+#     f = 1/30
+#     sin1 = lambda k: A* np.cos(2*np.pi*f*k)
+#     N = int(len(data['z'])/5)
+#     plt.close()
     # plt.plot(data['z'][0:N])
     # plt.plot([sin1(k) for k in range(N)])
 
-    plt.plot(new_data, "r")
-    plt.plot(fitted,"g-")
+    plt.plot(fitted_data, "r")
+    #plt.plot(fitted,"g-")
     # plt.plot(y_fit)
     plt.legend()
     plt.show()
