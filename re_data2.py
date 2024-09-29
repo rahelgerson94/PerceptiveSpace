@@ -110,9 +110,19 @@ if __name__ == "__main__":
     # plt.plot(data['z'][0:N])
     # plt.plot([sin1(k) for k in range(N)])
 
-    plt.plot(fitted_data, "r")
-    #plt.plot(fitted,"g-")
-    # plt.plot(y_fit)
-    plt.legend()
+    N = 200
+    plt.close()
+    fig, axs = plt.subplots(len(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']), 1, figsize=(8, 12))
+    t = list(range(0, N))
+    window = 5
+    
+    for i,ax in enumerate(['x', 'x_dot', 'y', 'y_dot', 'z', 'z_dot']):
+        axs[i].plot(data[ax][:N], linewidth = 0.5, label=f'({ax})')
+        axs[i].plot([0]*window + get_maxes(window, data[ax][:N], 50)) # zero padding at window size
+        axs[i].grid(True, which='both')  
+        #mplcursors.cursor(axs[i], hover=True)
+        axs[i].legend()
+    plt.tight_layout()
+    
     plt.show()
 
