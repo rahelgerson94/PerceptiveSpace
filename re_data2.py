@@ -38,17 +38,17 @@ def moving_max(window, data):
     return new_data
 
 def get_maxes(window, data, poly_window = 50):
-    maxes = moving_max(window, data)
+    maxes =  moving_max(window, data)
     pw_end = poly_window
     pw_start = 0
     new_data = []
-    while pw_end < len(maxes):
+    while pw_start < len(maxes):
         poly_coeffs = np.polyfit(range(pw_start,pw_end), maxes[pw_start:pw_end], 10)
         poly_fit = np.poly1d(poly_coeffs)
         new_data.extend(poly_fit(range(pw_start,pw_end)))
 
         pw_start = pw_end
-        pw_end = pw_end + poly_window
+        pw_end += min(poly_window, len(data) - pw_end - 5)
     return new_data
 
 
